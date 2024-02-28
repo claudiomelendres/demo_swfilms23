@@ -79,3 +79,6 @@ yarn add @nestjs/typeorm typeorm pg
 
 docker-compose up
 nest g res films
+
+yarn add class-validator class-transformer
+yarn add @nestjs/mapped-types

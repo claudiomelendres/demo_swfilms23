@@ -24,6 +24,7 @@ export class Film {
     release_date: Date;
 
     @Column({ type: 'text', nullable: true })
+
     url: string;
 
     @Column({ type: 'text', array: true, default: [] })
