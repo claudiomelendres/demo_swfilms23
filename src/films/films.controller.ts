@@ -19,7 +19,7 @@ export class FilmsController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id') id: string) {
     return this.filmsService.findOne(id);
   }
 

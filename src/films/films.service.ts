@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Film } from './entities/film.entity';
 import { FindOptionsOrderValue, Repository } from 'typeorm';
 import { PaginationDto } from 'src/helpers/dtos/pagination.dto';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class FilmsService {
@@ -44,7 +45,16 @@ export class FilmsService {
   }
 
   async findOne(id: string) {
-    const film = await this.filmsRepository.findOneBy({ id });
+
+    let film: Film;
+
+    if (isUUID(id)) {
+      film = await this.filmsRepository.findOneBy({ id });
+    } else {
+      film = await this.filmsRepository.findOneBy({ episode_id: +id });
+    }
+
+
     if (!film) throw new NotFoundException(`Film with id ${id} not found`);
     return film;
   }
