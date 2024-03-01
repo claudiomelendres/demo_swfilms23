@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateFilmDto } from './dto/create-film.dto';
 import { UpdateFilmDto } from './dto/update-film.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class FilmsService {
+  private readonly logger = new Logger('FilmsService');
 
   constructor(
     @InjectRepository(Film)
@@ -14,16 +15,29 @@ export class FilmsService {
   ) { }
 
 
-  create(createFilmDto: CreateFilmDto) {
-    return 'This action adds a new film';
+  async create(createFilmDto: CreateFilmDto) {
+
+    try {
+      const film = this.filmsRepository.create(createFilmDto);
+      await this.filmsRepository.save(film);
+      return film;
+
+    } catch (error) {
+      // console.log(error);
+      this.manageDBExeptions(error);
+    }
+
+
   }
 
   findAll() {
-    return `This action returns all films`;
+    return this.filmsRepository.find({});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} film`;
+  async findOne(id: string) {
+    const film = await this.filmsRepository.findOneBy({ id });
+    if (!film) throw new NotFoundException(`Film with id ${id} not found`);
+    return film;
   }
 
   update(id: number, updateFilmDto: UpdateFilmDto) {
@@ -32,5 +46,12 @@ export class FilmsService {
 
   remove(id: number) {
     return `This action removes a #${id} film`;
+  }
+
+  private manageDBExeptions(error: any) {
+    this.logger.error(error.message, error.stack);
+    if (error.code === '23505') throw new BadRequestException(error.detail);
+    throw new InternalServerErrorException('Internal Server Error');
+
   }
 }
