@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'films' })
 export class Film {
@@ -29,5 +29,12 @@ export class Film {
 
     @Column({ type: 'text', array: true, default: [] })
     characters: string[];
+
+    @BeforeInsert()
+    checkUrl() {
+        if (!this.url) {
+            this.url = `api/films/${this.episode_id}`;
+        }
+    }
 
 }

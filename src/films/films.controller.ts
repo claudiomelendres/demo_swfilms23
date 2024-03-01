@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Query } from '@nestjs/common';
 import { FilmsService } from './films.service';
 import { CreateFilmDto } from './dto/create-film.dto';
 import { UpdateFilmDto } from './dto/update-film.dto';
+import { PaginationDto } from 'src/helpers/dtos/pagination.dto';
 
 @Controller('films')
 export class FilmsController {
@@ -13,8 +14,8 @@ export class FilmsController {
   }
 
   @Get()
-  findAll() {
-    return this.filmsService.findAll();
+  findAll(@Query() paginationDto: PaginationDto) {
+    return this.filmsService.findAll(paginationDto);
   }
 
   @Get(':id')

@@ -82,3 +82,5 @@ nest g res films
 
 yarn add class-validator class-transformer
 yarn add @nestjs/mapped-types
+
+nest g mo helpers

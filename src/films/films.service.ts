@@ -3,7 +3,8 @@ import { CreateFilmDto } from './dto/create-film.dto';
 import { UpdateFilmDto } from './dto/update-film.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Film } from './entities/film.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsOrderValue, Repository } from 'typeorm';
+import { PaginationDto } from 'src/helpers/dtos/pagination.dto';
 
 @Injectable()
 export class FilmsService {
@@ -30,8 +31,16 @@ export class FilmsService {
 
   }
 
-  findAll() {
-    return this.filmsRepository.find({});
+  async findAll(paginationDto: PaginationDto) {
+    const { limit = 5, skip = 0, order = 'ASC' } = paginationDto;
+
+    return await this.filmsRepository.find({
+      skip,
+      take: limit,
+      order: {
+        episode_id: order as FindOptionsOrderValue
+      }
+    });
   }
 
   async findOne(id: string) {
