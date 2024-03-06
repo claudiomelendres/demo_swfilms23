@@ -34,26 +34,32 @@ export class FilmsService {
 
   async findAll(paginationDto: PaginationDto) {
     const { limit = 5, skip = 0, order = 'ASC', query } = paginationDto;
-
+    let films: Film[];
+    let count: number;
     if (!query) {
-      return await this.filmsRepository.find({
-        skip,
-        take: limit,
-        order: {
-          episode_id: order as FindOptionsOrderValue
-        }
-      });
+      [films, count] = await Promise.all([
+        this.filmsRepository.find({
+          skip,
+          take: limit,
+          order: {
+            episode_id: order as FindOptionsOrderValue
+          }
+        }),
+        this.filmsRepository.count()
+      ]);
+      return { films, count };
     } else {
       let films: Film[];
       const queryBuilder = this.filmsRepository.createQueryBuilder('film');
-      films = await queryBuilder
+      [films, count] = await queryBuilder
         .where('LOWER(director) like :director', { director: `%${query.toLowerCase()}%` })
         .orWhere('LOWER(title) like :title', { title: `%${query.toLowerCase()}%` })
         .limit(limit)
-        .skip(skip)
-        .getMany();
+        .offset(skip)
+        .orderBy('episode_id', order as 'ASC' | 'DESC')
+        .getManyAndCount();
 
-      return films;
+      return { films, count };
     }
 
 
@@ -74,12 +80,24 @@ export class FilmsService {
     return film;
   }
 
-  update(id: number, updateFilmDto: UpdateFilmDto) {
-    return `This action updates a #${id} film`;
+  async update(id: string, updateFilmDto: UpdateFilmDto) {
+    const film = await this.filmsRepository.preload({
+      id,
+      ...updateFilmDto
+    });
+
+    if (!film) throw new NotFoundException(`Film with id ${id} not found`);
+    try {
+      return await this.filmsRepository.save(film);
+    } catch (error) {
+      this.manageDBExeptions(error);
+    }
+
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} film`;
+  async remove(id: string) {
+    const film = await this.findOne(id);
+    await this.filmsRepository.remove(film);
   }
 
   private manageDBExeptions(error: any) {
