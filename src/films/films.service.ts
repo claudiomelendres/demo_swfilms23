@@ -59,20 +59,25 @@ export class FilmsService {
         }),
         this.filmsRepository.count()
       ]);
-      return { films, count };
     } else {
-      let films: Film[];
+
       const queryBuilder = this.filmsRepository.createQueryBuilder('film');
       [films, count] = await queryBuilder
         .where('LOWER(director) like :director', { director: `%${query.toLowerCase()}%` })
         .orWhere('LOWER(title) like :title', { title: `%${query.toLowerCase()}%` })
+        .leftJoinAndSelect('film.medias', 'media')
         .limit(limit)
         .offset(skip)
         .orderBy('episode_id', order as 'ASC' | 'DESC')
         .getManyAndCount();
 
-      return { films, count };
     }
+    // return { films, count };
+    return {
+      films: films.map(film => ({ ...film, medias: film.medias.map(media => media.url) })),
+      count
+    }
+
 
 
   }
