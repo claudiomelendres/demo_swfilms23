@@ -6,6 +6,7 @@ import { Film } from './entities/film.entity';
 import { FindOptionsOrderValue, Repository } from 'typeorm';
 import { PaginationDto } from 'src/helpers/dtos/pagination.dto';
 import { isUUID } from 'class-validator';
+import { FilmMedia } from './entities/film-media.entity';
 
 @Injectable()
 export class FilmsService {
@@ -14,15 +15,26 @@ export class FilmsService {
   constructor(
     @InjectRepository(Film)
     private filmsRepository: Repository<Film>,
+
+    @InjectRepository(FilmMedia)
+    private filmMediaRepository: Repository<FilmMedia>
   ) { }
 
 
   async create(createFilmDto: CreateFilmDto) {
 
     try {
-      const film = this.filmsRepository.create(createFilmDto);
+
+      const { medias = [], ...filmsDetails } = createFilmDto;
+
+      const film = this.filmsRepository.create({
+        ...filmsDetails,
+        medias: medias.map(media =>
+          this.filmMediaRepository.create({ url: media.url, type: media.type }))
+      }
+      );
       await this.filmsRepository.save(film);
-      return film;
+      return { ...film, medias };
 
     } catch (error) {
       // console.log(error);

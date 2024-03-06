@@ -1,4 +1,5 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { FilmMedia } from "./film-media.entity";
 
 @Entity({ name: 'films' })
 export class Film {
@@ -29,6 +30,16 @@ export class Film {
 
     @Column({ type: 'text', array: true, default: [] })
     characters: string[];
+
+
+    @OneToMany(() => FilmMedia, filmMedia => filmMedia.film,
+        {
+            cascade: true,
+            eager: true,
+
+        }
+    )
+    medias?: FilmMedia[];
 
     @BeforeInsert()
     checkUrl() {

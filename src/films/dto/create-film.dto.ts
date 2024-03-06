@@ -1,5 +1,6 @@
 import { Type } from "class-transformer";
 import { IsArray, IsDate, IsNumber, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
+import { FilmMedia } from "../entities/film-media.entity";
 
 export class CreateFilmDto {
 
@@ -36,4 +37,8 @@ export class CreateFilmDto {
     @IsArray()
     @IsOptional()
     characters: string[];
+
+    @IsArray()
+    @IsOptional()
+    medias: FilmMedia[];
 }
