@@ -3,7 +3,7 @@ import { CreateFilmDto } from './dto/create-film.dto';
 import { UpdateFilmDto } from './dto/update-film.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Film } from './entities/film.entity';
-import { FindOptionsOrderValue, Repository } from 'typeorm';
+import { DataSource, FindOptionsOrderValue, Repository } from 'typeorm';
 import { PaginationDto } from 'src/helpers/dtos/pagination.dto';
 import { isUUID } from 'class-validator';
 import { FilmMedia } from './entities/film-media.entity';
@@ -17,7 +17,9 @@ export class FilmsService {
     private filmsRepository: Repository<Film>,
 
     @InjectRepository(FilmMedia)
-    private filmMediaRepository: Repository<FilmMedia>
+    private filmMediaRepository: Repository<FilmMedia>,
+
+    private dataSource: DataSource
   ) { }
 
 
@@ -87,9 +89,17 @@ export class FilmsService {
     let film: Film;
 
     if (isUUID(id)) {
-      film = await this.filmsRepository.findOneBy({ id });
+      film = await this.filmsRepository.findOne({
+        where: { id },
+        relations: ['medias']
+      });
     } else {
-      film = await this.filmsRepository.findOneBy({ episode_id: +id });
+      film = await this.filmsRepository.findOne(
+        {
+          where: { id },
+          relations: ['medias']
+        }
+      );
     }
 
 
@@ -98,15 +108,36 @@ export class FilmsService {
   }
 
   async update(id: string, updateFilmDto: UpdateFilmDto) {
+    const { medias, ...restFilms } = updateFilmDto;
+
+
     const film = await this.filmsRepository.preload({
       id,
       ...updateFilmDto
     });
 
     if (!film) throw new NotFoundException(`Film with id ${id} not found`);
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+
     try {
-      return await this.filmsRepository.save(film);
+
+      if (medias) {
+        await queryRunner.manager.delete(FilmMedia, { film: { id } });
+        film.medias = medias.map(media =>
+          this.filmMediaRepository.create({ url: media.url, type: media.type }));
+      }
+      await queryRunner.manager.save(film);
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
+      return this.findOne(id);
+
     } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
       this.manageDBExeptions(error);
     }
 
