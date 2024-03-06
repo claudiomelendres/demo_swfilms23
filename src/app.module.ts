@@ -5,6 +5,7 @@ import { FilmsModule } from './films/films.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HelpersModule } from './helpers/helpers.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -22,7 +23,9 @@ import { HelpersModule } from './helpers/helpers.module';
 
     FilmsModule,
 
-    HelpersModule
+    HelpersModule,
+
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

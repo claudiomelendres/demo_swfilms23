@@ -84,3 +84,5 @@ yarn add class-validator class-transformer
 yarn add @nestjs/mapped-types
 
 nest g mo helpers
+
+nest g res auth
