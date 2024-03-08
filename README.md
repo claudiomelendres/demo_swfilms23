@@ -86,3 +86,11 @@ yarn add @nestjs/mapped-types
 nest g mo helpers
 
 nest g res auth
+
+yarn add bcrypt
+
+yarn add -D @types/bcrypt
+
+yarn add @nestjs/passport passport
+yarn add @nestjs/jwt passport-jwt
+yarn add -D @types/passport-jwt
