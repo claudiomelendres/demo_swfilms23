@@ -8,6 +8,7 @@ import { GetUser } from './decorators/get-user.decorator';
 import { User } from './entities/users.entity';
 import { RoleProtected } from './decorators/role-protected.decorator';
 import { ValidRoles } from './interfaces/valid-roles';
+import { Auth } from './decorators/auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -27,8 +28,7 @@ export class AuthController {
   }
 
   @Get('test1')
-  @RoleProtected(ValidRoles.admin, ValidRoles.user)
-  @UseGuards(AuthGuard(), UserRoleGuard)
+  @Auth(ValidRoles.admin, ValidRoles.user)
   testingPrivateRoute(@GetUser() user: User) {
     return {
       ok: true,
