@@ -5,6 +5,8 @@ import { UpdateFilmDto } from './dto/update-film.dto';
 import { PaginationDto } from 'src/helpers/dtos/pagination.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { ValidRoles } from 'src/auth/interfaces/valid-roles';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { User } from 'src/auth/entities/users.entity';
 // import { ValidRoles } from 'src/auth/interfaces/valid-roles';
 
 @Controller('films')
@@ -13,8 +15,8 @@ export class FilmsController {
 
   @Post()
   @Auth(ValidRoles.admin)
-  create(@Body() createFilmDto: CreateFilmDto) {
-    return this.filmsService.create(createFilmDto);
+  create(@Body() createFilmDto: CreateFilmDto, @GetUser() user: User) {
+    return this.filmsService.create(createFilmDto, user);
   }
 
   @Get()

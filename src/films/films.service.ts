@@ -7,6 +7,7 @@ import { DataSource, FindOptionsOrderValue, Repository } from 'typeorm';
 import { PaginationDto } from 'src/helpers/dtos/pagination.dto';
 import { isUUID } from 'class-validator';
 import { FilmMedia } from './entities/film-media.entity';
+import { User } from 'src/auth/entities/users.entity';
 
 @Injectable()
 export class FilmsService {
@@ -23,7 +24,7 @@ export class FilmsService {
   ) { }
 
 
-  async create(createFilmDto: CreateFilmDto) {
+  async create(createFilmDto: CreateFilmDto, user: User) {
 
     try {
 
@@ -31,6 +32,7 @@ export class FilmsService {
 
       const film = this.filmsRepository.create({
         ...filmsDetails,
+        user,
         medias: medias.map(media =>
           this.filmMediaRepository.create({ url: media.url, type: media.type }))
       }
