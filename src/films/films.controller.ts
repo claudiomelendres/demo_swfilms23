@@ -20,6 +20,7 @@ export class FilmsController {
   }
 
   @Get()
+  @Auth()
   findAll(@Query() paginationDto: PaginationDto) {
     return this.filmsService.findAll(paginationDto);
   }

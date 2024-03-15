@@ -6,6 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HelpersModule } from './helpers/helpers.module';
 import { AuthModule } from './auth/auth.module';
+import { PlanetsModule } from './planets/planets.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -25,7 +27,11 @@ import { AuthModule } from './auth/auth.module';
 
     HelpersModule,
 
-    AuthModule
+    AuthModule,
+
+    PlanetsModule,
+
+    DatabaseModule
   ],
   controllers: [AppController],
   providers: [AppService],
