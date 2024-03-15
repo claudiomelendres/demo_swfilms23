@@ -3,12 +3,16 @@ import { FilmsService } from './films.service';
 import { CreateFilmDto } from './dto/create-film.dto';
 import { UpdateFilmDto } from './dto/update-film.dto';
 import { PaginationDto } from 'src/helpers/dtos/pagination.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles';
+// import { ValidRoles } from 'src/auth/interfaces/valid-roles';
 
 @Controller('films')
 export class FilmsController {
   constructor(private readonly filmsService: FilmsService) { }
 
   @Post()
+  @Auth(ValidRoles.admin)
   create(@Body() createFilmDto: CreateFilmDto) {
     return this.filmsService.create(createFilmDto);
   }

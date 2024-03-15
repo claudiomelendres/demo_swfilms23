@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Film } from "src/films/entities/film.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 
 @Entity('users')
@@ -24,6 +25,9 @@ export class User {
 
     @Column('text', { array: true, default: ['user'] })
     roles: string[];
+
+    @OneToMany(() => Film, (film) => film.user)
+    films: Film;
 
 }
 

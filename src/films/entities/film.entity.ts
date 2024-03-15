@@ -1,5 +1,6 @@
-import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { FilmMedia } from "./film-media.entity";
+import { User } from "src/auth/entities/users.entity";
 
 @Entity({ name: 'films' })
 export class Film {
@@ -40,6 +41,9 @@ export class Film {
         }
     )
     medias?: FilmMedia[];
+
+    @ManyToOne(() => User, user => user.films, { eager: true })
+    user: User;
 
     @BeforeInsert()
     checkUrl() {
