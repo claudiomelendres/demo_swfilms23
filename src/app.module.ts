@@ -8,6 +8,7 @@ import { HelpersModule } from './helpers/helpers.module';
 import { AuthModule } from './auth/auth.module';
 import { PlanetsModule } from './planets/planets.module';
 import { DatabaseModule } from './database/database.module';
+import { StarshipsModule } from './starships/starships.module';
 
 @Module({
   imports: [
@@ -31,7 +32,9 @@ import { DatabaseModule } from './database/database.module';
 
     PlanetsModule,
 
-    DatabaseModule
+    DatabaseModule,
+
+    StarshipsModule
   ],
   controllers: [AppController],
   providers: [AppService],
