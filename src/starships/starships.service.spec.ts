@@ -1,19 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StarshipsService } from './starships.service';
-import { HttpModule, HttpService } from '@nestjs/axios';
-import { BadRequestException } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { DeepMocked, createMock } from '@golevelup/ts-jest';
 
 describe('StarshipsService', () => {
   let starShipsSrvice: StarshipsService;
+  let httpService: DeepMocked<HttpService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [HttpModule],
-      providers: [StarshipsService],
+      providers: [
+        StarshipsService,
+        {
+          provide: HttpService,
+          useValue: createMock<HttpService>(),
+        },
+      ],
     }).compile();
 
     starShipsSrvice = module.get<StarshipsService>(StarshipsService);
-
+    httpService = module.get(HttpService);
   });
 
   it('should be defined', () => {
@@ -56,10 +63,39 @@ describe('StarshipsService', () => {
     })
 
     it('should return starship data', async () => {
-      const starship = await starShipsSrvice.getStarship(3);
-      expect(starship).toBeDefined();
-      expect(starship.name).toBeDefined();
-      expect(starship.model).toBeDefined();
+      httpService.axiosRef.mockResolvedValue({
+        data: {
+          name: 'Millennium Falcon',
+          model: 'YT-1300 light freighter'
+        },
+        headers: {},
+        config: { url: '' },
+        status: 200,
+        statusText: '',
+      });
+
+      const starship = starShipsSrvice.getStarship(5);
+      const data = await starship;
+      expect(data).toBeDefined();
+
+      expect(JSON.stringify(data)).toBe(JSON.stringify({ name: 'Millennium Falcon', model: 'YT-1300 light freighter' })
+      );
+
+    })
+
+    it('should throw an error if the starship does not exist', async () => {
+      httpService.axiosRef.mockResolvedValueOnce({
+        response: {
+          status: 404,
+          statusText: 'Not found',
+          headers: {},
+          config: { url: '' },
+          data: {}
+        }
+      });
+
+      const starship = starShipsSrvice.getStarship(5);
+      await expect(starship).rejects.toBeInstanceOf(InternalServerErrorException);
     })
 
   })
