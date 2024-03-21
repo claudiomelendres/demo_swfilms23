@@ -10,14 +10,10 @@ describe('StarshipsService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        StarshipsService,
-        {
-          provide: HttpService,
-          useValue: createMock<HttpService>(),
-        },
-      ],
-    }).compile();
+      providers: [StarshipsService],
+    })
+      .useMocker(createMock)
+      .compile();
 
     starShipsSrvice = module.get<StarshipsService>(StarshipsService);
     httpService = module.get(HttpService);
