@@ -1,18 +1,26 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StartshipsService } from './startships.service';
-import { HttpModule } from '@nestjs/axios';
+import { HttpModule, HttpService } from '@nestjs/axios';
 import { BadRequestException } from '@nestjs/common';
+import { DeepMocked, createMock } from '@golevelup/ts-jest';
 
 describe('StartshipsService', () => {
   let service: StartshipsService;
+  let httpService: DeepMocked<HttpService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [HttpModule],
-      providers: [StartshipsService],
+      providers: [
+        StartshipsService,
+        {
+          provide: HttpService,
+          useValue: createMock<HttpService>(),
+        },
+      ],
     }).compile();
 
     service = module.get<StartshipsService>(StartshipsService);
+    httpService = module.get(HttpService);
   });
 
   it('should be defined', () => {
@@ -52,10 +60,23 @@ describe('StartshipsService', () => {
     })
 
     it('should return starship data', async () => {
-      const starship = await service.getStarship(3);
-      expect(starship).toBeDefined();
-      expect(starship.name).toBeDefined();
-      expect(starship.model).toBeDefined();
+      httpService.axiosRef.mockResolvedValue({
+        data: {
+          name: 'Millennium Falcon',
+          model: 'YT-1300 light freighter'
+        },
+        headers: {},
+        config: { url: '' },
+        status: 200,
+        statusText: '',
+      });
+
+      const starship = service.getStarship(5);
+      const data = await starship;
+      expect(data).toBeDefined();
+
+      expect(JSON.stringify(data)).toBe(JSON.stringify({ name: 'Millennium Falcon', model: 'YT-1300 light freighter' })
+      );
     })
 
   })
