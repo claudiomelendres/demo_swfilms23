@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StartshipsService } from './startships.service';
 import { HttpModule, HttpService } from '@nestjs/axios';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { DeepMocked, createMock } from '@golevelup/ts-jest';
 
 describe('StartshipsService', () => {
@@ -77,6 +77,22 @@ describe('StartshipsService', () => {
 
       expect(JSON.stringify(data)).toBe(JSON.stringify({ name: 'Millennium Falcon', model: 'YT-1300 light freighter' })
       );
+    })
+
+
+    it('should throw an error if the starship does not exist', async () => {
+      httpService.axiosRef.mockResolvedValueOnce({
+        response: {
+          status: 404,
+          statusText: 'Not found',
+          headers: {},
+          config: { url: '' },
+          data: {}
+        }
+      });
+
+      const starship = service.getStarship(5);
+      await expect(starship).rejects.toBeInstanceOf(InternalServerErrorException);
     })
 
   })
