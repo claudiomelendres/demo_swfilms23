@@ -5,7 +5,7 @@ import { UpdateStartshipDto } from './dto/update-startship.dto';
 
 @Controller('startships')
 export class StartshipsController {
-  constructor(private readonly startshipsService: StartshipsService) {}
+  constructor(private readonly startshipsService: StartshipsService) { }
 
   @Post()
   create(@Body() createStartshipDto: CreateStartshipDto) {
@@ -19,7 +19,8 @@ export class StartshipsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.startshipsService.findOne(+id);
+    // return this.startshipsService.findOne(+id);
+    return this.startshipsService.getStarship(+id);
   }
 
   @Patch(':id')

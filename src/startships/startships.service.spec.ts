@@ -1,11 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { StartshipsService } from './startships.service';
+import { HttpModule } from '@nestjs/axios';
+import { BadRequestException } from '@nestjs/common';
 
 describe('StartshipsService', () => {
   let service: StartshipsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [HttpModule],
       providers: [StartshipsService],
     }).compile();
 
@@ -35,5 +38,28 @@ describe('StartshipsService', () => {
     //Assert
     expect(startShip).toThrow();
   });
+
+  describe('getStarship', () => {
+
+    it('starship id is less than 2', async () => {
+      const getStarship = () => service.getStarship(1);
+      await expect(getStarship).rejects.toBeInstanceOf(BadRequestException);
+    })
+
+    it('starship id is greater than 32', async () => {
+      const getStarship = () => service.getStarship(33);
+      await expect(getStarship).rejects.toBeInstanceOf(BadRequestException);
+    })
+
+    it('should return starship data', async () => {
+      const starship = await service.getStarship(3);
+      expect(starship).toBeDefined();
+      expect(starship.name).toBeDefined();
+      expect(starship.model).toBeDefined();
+    })
+
+  })
+
+
 
 });
